@@ -8,13 +8,11 @@
 <body>
 	<input id="newTask" type="text" data-bind="value: newTask, valueUpdate: 'afterkeydown', event: { keypress: add }">
 	<div id="taskList" data-bind="foreach: items">
-        
         <div class="task">
             <button data-bind="click: remove, visible: !editing()">x</button>
             <span data-bind="text: title, visible: !editing(), event: { dblclick: function(todo) { todo.editing(true); } }"></span>
             <input data-bind="value: title, visible: editing(), valueUpdate: 'afterkeydown', event: { keypress: edit }" >
-        </div>
-        
+        </div>        
     </div>
     
 	<script src="/vendors/jquery-1.12.0.min.js"></script>
