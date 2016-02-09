@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+	<input id="newTask" type="text">
+	<div id="taskList"></div>
+
+	<script src="/repos/localstorage.js"></script>
+	<script>
+		var newTask = document.getElementById('newTask');
+		var taskList = document.getElementById('taskList');
+
+		function drawTodo(todo) {
+			var taskDiv = document.createElement('div');
+			taskDiv.classList.add('task');
+
+			var taskButton = document.createElement('button');
+			taskButton.innerText = 'x';
+			taskButton.addEventListener('click', function(){
+				repo.remove(todo.id);
+				drawTodos();
+			});
+			taskDiv.appendChild(taskButton);
+
+			var taskSpan = document.createElement('span');
+			taskSpan.innerText = todo.title;
+			taskSpan.addEventListener('dblclick', function(){
+				taskDiv.innerHTML = '';
+				var taskInput = document.createElement('input');
+				taskInput.value = todo.title;
+				taskInput.addEventListener('keydown', function(e){
+					if(e.keyCode == 13) {
+						repo.update({
+							id: todo.id,
+							title: taskInput.value
+						});
+						
+						drawTodos();
+					}
+				})
+				taskDiv.appendChild(taskInput);
+			})
+			taskDiv.appendChild(taskSpan);
+			
+			taskList.appendChild(taskDiv);
+		}
+
+		function drawTodos(){
+			taskList.innerHTML = '';
+			var todos = repo.list();
+			for(var t in todos) {
+				drawTodo(todos[t]);
+			}
+		}
+
+		drawTodos();
+
+		newTask.addEventListener('keydown', function(e) {
+			if(e.keyCode == 13) {
+				var todo = { 
+					title: newTask.value, 
+					completed: false
+				}
+
+				repo.add(todo);
+
+				drawTodos();
+			}
+		})		
+	</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.task {
+    margin-top: 10px;
+}
+
+.task button {
+    margin-right: 5px;
+
+    border: 1px solid;
+    border-radius: 18px;
+}

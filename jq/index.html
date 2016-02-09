@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+	<input id="newTask" type="text">
+	<div id="taskList"></div>
+
+	<script src="/vendors/jquery-1.12.0.min.js"></script>
+	<script src="/repos/inmemory.js"></script>
+	<script>
+		function drawTodo(todo) {
+			$('<div>')
+				.addClass('task')
+				.append($('<button>')
+					.text('x')
+					.on('click', function(){
+						$.when(repo.remove(todo.id)).done(drawTodos);
+					}))
+				.append($('<span>')
+					.text(todo.title)
+					.on('dblclick', function(){
+						$(this).parent()
+							.html('')
+							.append($('<input>')
+								.val($(this).text())
+								.on('keydown', function(e){
+									if(e.keyCode == 13) {
+										$.when(repo.update({
+											id: todo.id,
+											title: $(this).val()
+										})).done(drawTodos);
+									}
+								}))
+					}))
+				.appendTo($('#taskList'));
+		}
+
+		function drawTodos(){
+			$('#taskList').html('');
+			$.when(repo.list()).done(function(todos){
+				$.each(todos, function(index, todo){
+					drawTodo(todo);
+				})
+			});
+		}
+
+		$('#newTask').on('keydown', function(e) {
+			if(e.keyCode == 13) {
+				var newTask = $(this);
+				$.when(repo.add({ 
+					title: newTask.val(),
+					completed: false
+				})).done(function(){
+					newTask.val('');
+					drawTodos();
+				});
+			}
+        });		
+
+		drawTodos();
+	</script>
+</body>
+</html>

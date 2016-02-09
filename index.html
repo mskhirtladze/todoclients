@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+	<input id="newTask" type="text" data-bind="value: newTask, valueUpdate: 'afterkeydown', event: { keypress: add }">
+	<div id="taskList" data-bind="foreach: items">
+        
+        <div class="task">
+            <button data-bind="click: remove, visible: !editing()">x</button>
+            <span data-bind="text: title, visible: !editing(), event: { dblclick: function(todo) { todo.editing(true); } }"></span>
+            <input data-bind="value: title, visible: editing(), valueUpdate: 'afterkeydown', event: { keypress: edit }" >
+        </div>
+        
+    </div>
+    
+	<script src="/vendors/jquery-1.12.0.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
+	<script src="/repos/ajax.jquery.js"></script>
+	<script>
+        var vm = {
+            newTask: ko.observable('task'),
+            items: ko.observableArray([]),
+        };
+        
+        function reload(){
+            vm.items.removeAll();
+            $.when(repo.list()).done(function(todos){
+				$.each(todos, function(index, todo){
+					vm.items.push({
+                        id: todo.id,
+                        title: ko.observable(todo.title),
+                        editing: ko.observable(false)
+                    });
+				})
+			});
+        }
+        
+        function add(el, e){
+            if(e.keyCode == 13) {
+				$.when(repo.add({ 
+					title: vm.newTask(),
+					completed: false
+				})).done(function(){
+					vm.newTask('');
+					reload();
+				});
+            }
+            return true;
+        }
+        
+        function edit(item, e){
+            if(e.keyCode == 13) {
+                $.when(repo.update({
+                    id: item.id,
+                    title: item.title()
+                })).done(reload);
+            }
+            return true;
+        }
+        
+        function remove(todo){
+            $.when(repo.remove(todo.id)).done(reload);
+        }
+        
+        ko.applyBindings(vm);
+
+        reload();
+	</script>
+</body>
+</html>

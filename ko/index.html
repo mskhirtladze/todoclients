@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+	<input type="text" data-bind="value: newTask, valueUpdate: 'afterkeydown', event: { keypress: add }">
+    
+    <!-- ko foreach: items -->
+    <div class="task">
+        <button data-bind="click: remove, visible: !editing()">x</button>
+        <span data-bind="text: title, visible: !editing(), event: { dblclick: function(item) { item.editing(true); } }"></span>
+        <input data-bind="value: title, visible: editing(), valueUpdate: 'afterkeydown', event: { keypress: edit }">
+    </div>
+    <!-- /ko -->
+
+    <script src="/vendors/knockout-3.3.0.js"></script>
+	<script src="/vendors/jquery-1.12.0.min.js"></script>
+	<script src="/repos/localstorage.js"></script>
+	<script>
+        var vm = { 
+            newTask: ko.observable(''),      
+            items: ko.observableArray([]),           
+        };
+        
+        function reload(){
+            $.when(repo.list()).done(function(todos){
+                vm.items.removeAll();
+                $.each(todos, function(i, todo){
+                    vm.items.push({
+                        id: todo.id,
+                        title: ko.observable(todo.title),
+                        editing: ko.observable(false),
+                    }); 
+                });
+            });
+        }
+        
+        function add(item, e){
+            if(e.keyCode == 13) {
+                $.when(repo.add({ 
+                    title: vm.newTask(),
+                    completed: false
+                })).done(function(){
+                    vm.newTask('');
+                    reload();                    
+                });
+            }
+            return true;
+        }
+        
+        function remove(todo){
+            $.when(repo.remove(todo.id)).done(reload);
+        }
+        
+        function edit(item, e){
+            if(e.keyCode == 13) {
+                $.when(repo.update({
+                    id: item.id,
+                    title: item.title()
+                })).done(reload);
+            }
+            return true;
+        }
+        
+        ko.applyBindings(vm);
+        reload();
+	</script>
+</body>
+</html>

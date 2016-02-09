@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<style type="text/css">
+		.task {
+			margin-top: 10px;
+		}
+
+		.task button {
+			margin-right: 5px;
+
+		    border: 1px solid;
+    		border-radius: 18px;
+		}
+	</style>
+</head>
+<body>
+	<input id="newTask" type="text">
+	<div id="taskList"></div>
+	<script>
+		var newTask = document.getElementById('newTask');
+		var taskList = document.getElementById('taskList');	
+        
+        newTask.addEventListener('keypress', function(e){
+            if(e.keyCode == 13) {
+                var taskText = newTask.value;
+                newTask.value = '';
+                
+                var taskDiv = document.createElement('div');
+                taskDiv.classList.add('task');
+                
+                var taskButton = document.createElement('button');
+                taskButton.innerText = 'x';
+                taskButton.addEventListener('click', function(){
+                    taskList.removeChild(taskDiv);
+                })
+                taskDiv.appendChild(taskButton);
+                
+                var taskSpan = document.createElement('span');
+                taskSpan.innerText = taskText;
+                taskSpan.addEventListener('dblclick', function(){
+                    var taskInput = document.createElement('input');
+                    taskInput.value = taskSpan.innerText;
+                    taskDiv.innerHTML = '';
+                    taskInput.addEventListener('keypress', function(e){
+                        if(e.keyCode == 13) {
+                            taskSpan.innerText = taskInput.value;
+                            taskDiv.innerHTML = '';
+                            taskDiv.appendChild(taskButton);
+                            taskDiv.appendChild(taskSpan);
+                        }
+                    })
+                    taskDiv.appendChild(taskInput);
+                })
+                taskDiv.appendChild(taskSpan);
+                
+                taskList.appendChild(taskDiv);
+            }
+        })
+	</script>
+</body>
+</html>
